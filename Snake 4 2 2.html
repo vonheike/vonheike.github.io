@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	
+	<title>Bad Version of Snake game</title>
+	
+	<style>
+	
+	canvas {
+		background : #000;
+	}
+	
+	p {
+		font-family: "Courier New";
+	}
+	</style>
+
+</head>
+
+
+<body>
+	<p id="xylabel"></p>
+	<canvas id="canvas" width="800" height="800" style="border:1px solid #000000"></canvas>
+	<script>
+		
+		//connect the script and the canvas
+		var c = document.getElementById("canvas");
+		var area = c.getContext("2d");
+		
+		//function to create a new sprite
+		function sprite(x, y) {
+			this.x = x;  
+			this.y = y;
+			this.direction = 0;
+			this.changeX = function (i) {
+				this.x = this.x + i;
+			}
+			this.changeY = function (i) {
+				this.y = this.y + i;
+			}
+			this.setXY = function(i) {
+				this.x = i[0];
+				this.y = i[1];
+			}
+			this.turn = function (i) {
+				this.direction = i;
+			}
+		}
+
+
+		//fucntion to clean the screen
+		function refreshScreen() {
+			area.fillStyle = "rgba(0,0,0,1)";
+			area.fillRect(0,0,800,800);
+		}
+
+		
+		
+//////////////////////////////////////////////////////////////  SNAKE SECTION ///////////////////////////////////////////////////////////////////		
+		
+		//create the snake sprite
+		var snake = new sprite(400,400);
+		var tail = [ [snake.x - 10, snake.y ] , [snake.x -20 ,snake.y ] ,  [snake.x - 30, snake.y ] ];
+		var ate = false;
+		
+		
+		
+		//code to move the head in any direction
+		function moveHead() {
+			switch(snake.direction) {
+				
+				case 0: {  
+					if(snake.x<790){
+						snake.changeX(10);
+					} else {
+						snake.turn(snake.direction + 1);
+					} 
+					break;
+				}
+				
+				case 1: {
+					if(snake.y>0){
+						snake.changeY(-10);
+					} else {
+						snake.turn(snake.direction + 1);
+					} 
+					break;
+				}
+				
+				case 2: {
+					if(snake.x>0){
+						snake.changeX(-10);
+					} else {
+						snake.turn(snake.direction + 1);
+					} 
+					break;
+				}
+				
+				case 3: {
+					if(snake.y<790){
+						snake.changeY(10);
+					} else {
+						snake.turn(0);
+					} 
+					break;
+				}
+			}		
+		}	
+
+
+		function moveTail() {
+			tail.unshift([snake.x, snake.y]);
+			
+			if (ate == false) {
+				tail.pop();
+			}
+			for(i = tail.length - 1; i >=1; i--) {
+				tail[i] = tail[i-1];
+			}
+		}
+
+			
+		function move() {
+			moveTail();
+			moveHead();
+		}
+				
+
+		
+		
+		
+		//code the read the keyboard
+		document.addEventListener("keypress", function(e) {
+			var key = e.keyCode;
+		
+			switch(key) {
+				case 97:
+					if(snake.direction != 0) {
+						snake.turn(2);
+					}
+					break;
+				case 100:
+					if(snake.direction != 2) {
+						snake.turn(0);
+					}
+					break;
+				case 115:
+					if(snake.direction != 1) {
+						snake.turn(3);
+					}
+					break;
+				case 119:
+					if(snake.direction != 3) {
+						snake.turn(1);
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+
+		function refreshSnake() {
+						
+			//draw snake head
+			area.fillStyle = "rgba(255,255,255,1)";
+			area.fillRect(snake.x, snake.y, 10, 10);
+  			document.getElementById("xylabel").innerHTML = tail.length + " " + tail;
+			
+			//draw snake tail
+			for(i = tail.length - 1; i >= 0; i--) {
+				area.fillStyle = "rgba(255,255,255,1)";
+				area.fillRect(tail[i][0], tail[i][1], 10, 10);
+			}
+		}
+
+
+
+
+//////////////////////////////////////////////////////////////  FOOD SECTION ///////////////////////////////////////////////////////////////////
+		
+		var food = new sprite(440,400);
+		
+		function checkEat() {
+			if((snake.x == food.x )&& (snake.y == food.y)) {
+				food.setXY([10 * Math.floor(Math.random() * 79), 10 * Math.floor(Math.random() * 79)]);
+				ate = true;
+			} else {
+				ate = false;
+			}
+		}
+		function refreshFood() {
+						
+			//draw food
+			area.fillStyle = "rgba(255,20, 20,1)";
+			area.fillRect(food.x, food.y, 10, 10);
+		}
+
+		
+
+
+
+
+//////////////////////////////////////////////////////////////   UNIFY EVERYTHING ///////////////////////////////////////////////////////////////////
+
+		function refreshAll() {
+			refreshScreen();
+			refreshSnake();
+			refreshFood();
+		}
+
+
+		//refresh the screen and move the snake head
+		setInterval(function(){
+			refreshAll();
+			move();
+			checkEat();
+		}, 100);
+
+		
+
+		
+		
+
+	</script>
+</body>
+</body>
+</html>
